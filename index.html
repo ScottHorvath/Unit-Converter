@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Absurd Unit Converter</title>
+  <style>
+    /* Dark theme (default) */
+    :root {
+      --bg: #0b0f19;
+      --card: #151d30;
+      --border: #29354f;
+      --input-bg: #0b0f19;
+      --input-border: #3b4b6e;
+      --text: #f8fafc;
+      --subtext: #94a3b8;
+      --accent: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --btn-text: #04121e;
+      --result-bg: #080d1a;
+      --theme-btn-bg: #222f49;
+      --theme-btn-hover: #334466;
+      --meme-tag: #f59e0b;
+      --tab-bg: #1e293b;
+      --tab-active-bg: #38bdf8;
+      --tab-active-text: #04121e;
+    }
+
+    /* Light theme overrides */
+    body.light-mode {
+      --bg: #f3f6fa;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --input-bg: #f8fafc;
+      --input-border: #cbd5e1;
+      --text: #0f172a;
+      --subtext: #64748b;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --btn-text: #ffffff;
+      --result-bg: #f8fafc;
+      --theme-btn-bg: #e2e8f0;
+      --theme-btn-hover: #cbd5e1;
+      --meme-tag: #d97706;
+      --tab-bg: #e2e8f0;
+      --tab-active-bg: #0284c7;
+      --tab-active-text: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .converter-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 1.2rem;
+      padding: 2rem;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.35);
+      position: relative;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.35rem;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .theme-toggle {
+      background: var(--theme-btn-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.15rem;
+      padding: 0;
+      flex-shrink: 0;
+    }
+
+    .theme-toggle:hover {
+      background: var(--theme-btn-hover);
+    }
+
+    p.subtitle {
+      font-size: 0.88rem;
+      color: var(--subtext);
+      margin-bottom: 1.25rem;
+    }
+
+    /* Category Tabs */
+    .category-section {
+      margin-bottom: 1.2rem;
+    }
+
+    .category-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--subtext);
+      margin-bottom: 0.45rem;
+      font-weight: 700;
+    }
+
+    .tabs-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.45rem;
+      background: rgba(0, 0, 0, 0.15);
+      padding: 0.3rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+    }
+
+    .category-tab {
+      background: var(--tab-bg);
+      border: 1px solid transparent;
+      color: var(--text);
+      padding: 0.55rem 0.35rem;
+      border-radius: 0.55rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .category-tab:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .category-tab.active {
+      background: var(--tab-active-bg);
+      color: var(--tab-active-text);
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(56, 189, 248, 0.25);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    input[type="number"], select {
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      color: var(--text);
+      padding: 0.8rem 1rem;
+      border-radius: 0.6rem;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input[type="number"] {
+      flex: 1;
+      width: 50%;
+    }
+
+    select {
+      flex: 1.1;
+      cursor: pointer;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+    }
+
+    .convert-btn {
+      width: 100%;
+      background: var(--accent);
+      color: var(--btn-text);
+      border: none;
+      padding: 0.9rem;
+      border-radius: 0.6rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .convert-btn:hover {
+      background: var(--accent-hover);
+    }
+
+    .convert-btn:active {
+      transform: scale(0.98);
+    }
+
+    .result-box {
+      margin-top: 1.5rem;
+      padding: 1.25rem;
+      background: var(--result-bg);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 0.6rem;
+      display: none;
+      animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: translateY(4px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-value {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 0.35rem;
+      line-height: 1.3;
+    }
+
+    .meme-note {
+      font-size: 0.85rem;
+      color: var(--meme-tag);
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      font-style: italic;
+    }
+
+    .result-sub {
+      font-size: 0.8rem;
+      color: var(--subtext);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="converter-card">
+    <div class="card-header">
+      <h1>🍌 Absurd Converter</h1>
+      <button class="theme-toggle" id="themeToggle" title="Toggle Light/Dark Mode" aria-label="Toggle Theme">
+        🌙
+      </button>
+    </div>
+    <p class="subtitle">Convert everyday measurements into ridiculous themed units.</p>
+
+    <!-- Category Tabs -->
+    <div class="category-section">
+      <div class="category-label">Target Universe</div>
+      <div class="tabs-container">
+        <button class="category-tab active" data-category="dank">🔥 Dank Memes</button>
+        <button class="category-tab" data-category="brainrot">🧠 Brain Rot</button>
+        <button class="category-tab" data-category="popculture">🎬 Pop Culture</button>
+        <button class="category-tab" data-category="absurd">🍕 Pure Absurd</button>
+      </div>
+    </div>
+
+    <div class="input-row">
+      <input type="number" id="inputValue" placeholder="Enter number..." value="10" step="any">
+      <select id="unitSelect">
+        <optgroup label="Weight / Mass">
+          <option value="lbs">Pounds (lbs)</option>
+          <option value="kg">Kilograms (kg)</option>
+          <option value="oz">Ounces (oz)</option>
+        </optgroup>
+        <optgroup label="Length / Distance">
+          <option value="ft" selected>Feet (ft)</option>
+          <option value="in">Inches (in)</option>
+          <option value="m">Meters (m)</option>
+          <option value="mi">Miles (mi)</option>
+        </optgroup>
+        <optgroup label="Volume / Liquid">
+          <option value="gal">Gallons (gal)</option>
+          <option value="l">Liters (L)</option>
+          <option value="cup">Cups</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <button class="convert-btn" id="convertBtn">Convert 🎲</button>
+
+    <div class="result-box" id="resultBox">
+      <div class="result-value" id="resultText"></div>
+      <div class="meme-note" id="memeNote"></div>
+      <div class="result-sub" id="detailText"></div>
+    </div>
+  </div>
+
+  <script>
+    // Theme toggle handling
+    const themeBtn = document.getElementById("themeToggle");
+    const currentTheme = localStorage.getItem("theme");
+
+    if (currentTheme === "light") {
+      document.body.classList.add("light-mode");
+      themeBtn.textContent = "☀️";
+    }
+
+    themeBtn.addEventListener("click", () => {
+      document.body.classList.toggle("light-mode");
+      const isLight = document.body.classList.contains("light-mode");
+      themeBtn.textContent = isLight ? "☀️" : "🌙";
+      localStorage.setItem("theme", isLight ? "light" : "dark");
+    });
+
+    // Active Category Tracking
+    let selectedCategory = "dank";
+    const categoryTabs = document.querySelectorAll(".category-tab");
+    categoryTabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        categoryTabs.forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        selectedCategory = tab.dataset.category;
+        convert();
+      });
+    });
+
+    // Baseline conversions to base SI units: kg (weight), meters (length), liters (volume)
+    const baseConverters = {
+      lbs: v => v * 0.45359237,
+      kg: v => v,
+      oz: v => v * 0.0283495,
+      ft: v => v * 0.3048,
+      in: v => v * 0.0254,
+      m: v => v,
+      mi: v => v * 1609.344,
+      gal: v => v * 3.78541,
+      l: v => v,
+      cup: v => v * 0.236588
+    };
+
+    // Categorized Units Database
+    const categoryDatabase = {
+      dank: {
+        weight: [
+          { name: "Shreks (canonical swamp ogre)", valInBase: 204.0, note: "🧅 What are ya doing in my swamp?!" },
+          { name: "Gigachads (pure jawline mass)", valInBase: 100.0, note: "🗿 Average metric enjoyer." },
+          { name: "Chunky Capybaras pulled up", valInBase: 50.0, note: "🐾 OK I pull up, hop out at the after party." },
+          { name: "Discord Moderator RGB Keyboards", valInBase: 1.2, note: "⌨️ Comes with sticky mechanical blue switches." },
+          { name: "Costco Rotisserie Chickens", valInBase: 1.36, note: "🍗 Inflation proof at $4.99 forever." }
+        ],
+        length: [
+          { name: "Bananas for Scale (standard)", valInBase: 0.18, note: "🍌 The universal internet unit of measurement." },
+          { name: "Lego bricks stepped on barefoot", valInBase: 0.032, note: "🧱 Measured strictly in sheer physical agony." },
+          { name: "Nokia 3310 phones laid end-to-end", valInBase: 0.113, note: "🔨 Indestructible structural columns." },
+          { name: "Subway Footlongs (alleged 12-inch)", valInBase: 0.28, note: "🥖 Lawsuit settled: actual length was ~11 inches." }
+        ],
+        volume: [
+          { name: "Grimace Shakes", valInBase: 0.473, note: "🟣 Happy birthday Grimace... may god have mercy." },
+          { name: "Gamer Girl Bath Water jars", valInBase: 0.25, note: "🧴 Sold out in under 3 minutes." },
+          { name: "Tears shed during Dark Souls bosses", valInBase: 0.00005, note: "⚔️ You Died." }
+        ]
+      },
+      brainrot: {
+        weight: [
+          { name: "Level 10 Gyatts", valInBase: 85.0, note: "🍑 Only in Ohio fr fr no cap." },
+          { name: "Baby Gronks rizzing Livvy Dunne", valInBase: 42.0, note: "🏈 The new drip king." },
+          { name: "Kai Cenat W Rizz streams", valInBase: 65.0, note: "🔥 W in the chat or you're banned." },
+          { name: "Fanum Tax cuts of pizza", valInBase: 0.45, note: "🍕 20% slice mandatory tribute paid." }
+        ],
+        length: [
+          { name: "Skibidi Toilets aligned", valInBase: 0.75, note: "🚽 Skibidi bop bop yes yes." },
+          { name: "Mewing Jawlines (sharpness radius)", valInBase: 0.09, note: "🤫 Bye bye! Don't break the streak." },
+          { name: "Sigma Grindset paths walked", valInBase: 15.0, note: "🐺 Patrick Bateman morning walk." },
+          { name: "Smurf Cat mushroom strides", valInBase: 0.25, note: "🍄 We live, we love, we lie." }
+        ],
+        volume: [
+          { name: "Prime Hydration bottles chugged", valInBase: 0.5, note: "⚡ Resold at school for $20 a pop." },
+          { name: "Grimace Shakes spilled on TikTok", valInBase: 0.473, note: "💜 The incident of June 2023." },
+          { name: "Pure concentrated Brain Rot fluid", valInBase: 0.05, note: "🧠 10 hours of TikTok split-screen subway surfers." }
+        ]
+      },
+      popculture: {
+        weight: [
+          { name: "Darth Vader armored suits", valInBase: 120.0, note: "🌌 Heavy breathing apparatus included." },
+          { name: "Lightsaber hilts", valInBase: 1.0, note: "✨ An elegant weapon for a more civilized age." },
+          { name: "Batmobiles (Tumbler edition)", valInBase: 2300.0, note: "🦇 I'm Batman." },
+          { name: "Thanos Infinity Gauntlets", valInBase: 25.0, note: "🫰 Perfectly balanced, as all things should be." }
+        ],
+        length: [
+          { name: "Millennium Falcons parked nose-to-tail", valInBase: 34.75, note: "🚀 Did the Kessel Run in twelve parsecs." },
+          { name: "Gollum crouching strides", valInBase: 0.85, note: "💍 My precioussss!" },
+          { name: "Minecraft full blocks", valInBase: 1.0, note: "⛏️ Exactly 1 meter cube of pure obsidian." },
+          { name: "Harry Potter Nimbus 2000s", valInBase: 1.35, note: "🧹 150 points to Gryffindor!" }
+        ],
+        volume: [
+          { name: "Stanley Quencher Cups (40oz)", valInBase: 1.18, note: "🥤 Survived car fires, still holds ice." },
+          { name: "Butterbeers from Hogsmeade", valInBase: 0.5, note: "🍺 Tastes like butterscotch and shortbread." },
+          { name: "Slurp Juices from Fortnite", valInBase: 0.65, note: "🧪 +75 shield over time." }
+        ]
+      },
+      absurd: {
+        weight: [
+          { name: "iPhones (iPhone 15 Pro)", valInBase: 0.187, note: "📱 Titanium frame, no charger in box." },
+          { name: "Standard bowling balls", valInBase: 6.35, note: "🎳 Strike or straight into the gutter." },
+          { name: "Blue whale tongues", valInBase: 2700.0, note: "🐋 Weighs as much as an entire adult elephant." },
+          { name: "Sticks of salted butter", valInBase: 0.1134, note: "🧈 Paula Deen approved." }
+        ],
+        length: [
+          { name: "Chipotle Burritos wrapped in foil", valInBase: 0.20, note: "🌯 Double-wrapped, extra guac costs more." },
+          { name: "Stacked glazed donuts", valInBase: 0.038, note: "🍩 Police standard patrol measurement." },
+          { name: "Giraffes standing on each other", valInBase: 5.5, note: "🦒 Long neck squad." },
+          { name: "Standard yellow school buses", valInBase: 10.6, note: "🚌 Seatbelts completely optional." }
+        ],
+        volume: [
+          { name: "Olympic Swimming Pools", valInBase: 2500000, note: "🏊 That's a lot of pool noodles." },
+          { name: "Standard Bathtubs filled to brim", valInBase: 150, note: "🛁 Don't forget your rubber duck." },
+          { name: "Starbucks Trenta cold cups", valInBase: 0.916, note: "☕ Clinically dangerous amounts of caffeine." },
+          { name: "Shot glasses of espresso", valInBase: 0.044, note: "☕ Instant heartbeat elevator." }
+        ]
+      }
+    };
+
+    const unitTypes = {
+      lbs: "weight", kg: "weight", oz: "weight",
+      ft: "length", in: "length", m: "length", mi: "length",
+      gal: "volume", l: "volume", cup: "volume"
+    };
+
+    let lastIndex = -1;
+
+    function convert() {
+      const val = parseFloat(document.getElementById("inputValue").value);
+      const unit = document.getElementById("unitSelect").value;
+      const resBox = document.getElementById("resultBox");
+      const resText = document.getElementById("resultText");
+      const memeNote = document.getElementById("memeNote");
+      const detText = document.getElementById("detailText");
+
+      if (isNaN(val)) {
+        resBox.style.display = "block";
+        resText.textContent = "Bruh... enter a real number";
+        memeNote.textContent = "⚠️ Error 404: Input not found";
+        detText.textContent = "";
+        return;
+      }
+
+      const type = unitTypes[unit];
+      const baseValue = baseConverters[unit](val);
+      const categoryObj = categoryDatabase[selectedCategory] || categoryDatabase.dank;
+      const targets = categoryObj[type];
+
+      // Pick a random target (avoid repeating identical back-to-back)
+      let randIndex;
+      do {
+        randIndex = Math.floor(Math.random() * targets.length);
+      } while (targets.length > 1 && randIndex === lastIndex);
+      lastIndex = randIndex;
+
+      const target = targets[randIndex];
+      const convertedVal = baseValue / target.valInBase;
+
+      // Smart formatting for small / large values
+      let formattedCount;
+      if (convertedVal >= 1000) {
+        formattedCount = Math.round(convertedVal).toLocaleString();
+      } else if (convertedVal >= 10) {
+        formattedCount = convertedVal.toFixed(1);
+      } else if (convertedVal >= 0.01) {
+        formattedCount = convertedVal.toFixed(2);
+      } else {
+        formattedCount = convertedVal.toExponential(2);
+      }
+
+      resText.textContent = `≈ ${formattedCount} ${target.name}`;
+      memeNote.textContent = target.note;
+      detText.textContent = `${val} ${unit} converted. Press enter or click again to roll another.`;
+
+      // Trigger pop-in animation
+      resBox.style.display = "block";
+      resBox.style.animation = 'none';
+      resBox.offsetHeight; // force reflow
+      resBox.style.animation = null;
+    }
+
+    document.getElementById("convertBtn").addEventListener("click", convert);
+    document.getElementById("inputValue").addEventListener("keypress", (e) => {
+      if (e.key === "Enter") convert();
+    });
+  </script>
+</body>
+</html>
